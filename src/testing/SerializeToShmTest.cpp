@@ -6,8 +6,6 @@
 #include <sys/ipc.h>
 #include <sys/wait.h>
 
-//#include <sys/mman.h>
-//#include <sys/shm.h>
 
 #include "SerializeUtils.h"
 #include "FileUtils.h"

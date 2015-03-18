@@ -5,6 +5,8 @@
 #include <vector>
 #include <stdexcept>
 
+#include <math.h>
+
 #include "Threads.h"
 
 

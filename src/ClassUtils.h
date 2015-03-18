@@ -11,10 +11,6 @@
 #include <deque>
 #include <string>
 
-#include <mdsobjects.h>
-
-namespace mds = MDSplus;
-
 ////////////////////////////////////////////////////////////////////////////////
 //  Comma Init  ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -126,9 +122,9 @@ private:
 template < typename T >
 class Deleter {
 public:
-    static void _delete(mds::Data * ptr) {
-        mds::deleteData(ptr);
-    }
+//    static void _delete(mds::Data * ptr) {
+//        mds::deleteData(ptr);
+//    }
 
     static void _delete(void * ptr) {
         delete (T*)(ptr);

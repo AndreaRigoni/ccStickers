@@ -18,13 +18,13 @@ include Common.am
 # fix !
 LIBRARY_VERSION = 1:0:0
 
-CONLIBS = src/libMDSipTest.la
+CONLIBS = src/libccStickers.la
 
-lib_LTLIBRARIES = libMDSipTest.la
-libMDSipTest_la_SOURCES = ${_uLib_SOURCES}
-libMDSipTest_la_LDFLAGS = -version-info $(LIBRARY_VERSION)
+lib_LTLIBRARIES = libccStickers.la
+libccStickers_la_SOURCES = ${_uLib_SOURCES}
+libccStickers_la_LDFLAGS = -version-info $(LIBRARY_VERSION)
 # -release $(PACKAGE_VERSION)
-libMDSipTest_la_LIBADD  = $(AM_LIBS_ALL) ${CONLIBS}
+libccStickers_la_LIBADD  = $(AM_LIBS_ALL) ${CONLIBS}
 
 
 # pkgconfigdir   = $(libdir)/pkgconfig

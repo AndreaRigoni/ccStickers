@@ -22,6 +22,6 @@ FileUtils.cpp \
 ProducerConsumer.cpp \
 StatisticsUtils.cpp
 
-noinst_LTLIBRARIES = ccStickers.la
-ccStickers_la_SOURCES = ${_CORE_SOURCES}
+noinst_LTLIBRARIES = libccStickers.la
+libccStickers_la_SOURCES = ${_CORE_SOURCES}
 

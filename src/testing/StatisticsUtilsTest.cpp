@@ -56,22 +56,6 @@ int main(int argc, char *argv[])
 {
     BEGIN_TESTING(Statistics Utils);
 
-    //    {
-    //        std::vector<Scalar> data;
-    //        StatUtils::IncrementalOrder2 st;
-    //        int n = 0;
-    //        for(int i=0; i<100; i++) {
-    //            Scalar val = StatisticGen::boxMuller(0,1);
-    //            data.push_back(val);
-    //            st.add(val);
-    //                std::cout << i << ";" << test_dummy_variance(data) << ";"
-    //                          << test_dummy_variance(data) - st.variance() << ";"
-    //                          << test_compensated_variance(data) - st.variance() << "\n";
-    //        }
-    //    }
-
-
-
     { // TEST INCREMENTAL VARIANCE //
         std::vector<Scalar> data;
         StatUtils::IncrementalOrder2 st;

@@ -2,9 +2,7 @@
 #define TREADS_H
 
 #include <pthread.h>
-#include <mdsobjects.h>
 
-namespace mds = MDSplus;
 
 ////////////////////////////////////////////////////////////////////////////////
 // THREAD BASE  ////////////////////////////////////////////////////////////////
@@ -43,20 +41,82 @@ private:
 
 
 
+////////////////////////////////////////////////////////////////////////////////
+//  Mutex  /////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+
+class Mutex {
+public:
+    Mutex() {
+        _create();
+    }
+
+    ~Mutex() {
+        _destroy();
+    }
+
+    void lock() {
+        _lock();
+    }
+
+    void unlock() {
+        _unlock();
+    }
+
+private:
+    pthread_mutex_t mutex;
+    void _create() { pthread_mutex_init(&mutex, NULL); }
+    void _lock() { pthread_mutex_lock(&mutex); }
+    void _unlock() { pthread_mutex_unlock(&mutex); }
+    void _destroy() { pthread_mutex_destroy(&mutex); }
+//#elif defined (MDS_WINDOWS)
+//    HANDLE mutex;
+//    void _create() { mutex = CreateMutex(NULL, FALSE, NULL); }
+//    void _lock() { WaitForSingleObject(mutex, INFINITE); }
+//    void _unlock() { ReleaseMutex(mutex); }
+//    void _destroy() { CloseHandle(mutex); }
+//#endif
+};
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+//  Autolock  //////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+
+class AutoLock {
+public:
+    AutoLock(Mutex & mutex): mutex(mutex) {
+        mutex.lock();
+    }
+
+    ~AutoLock() {
+        mutex.unlock();
+    }
+
+private:
+    Mutex & mutex;
+
+};
+
+
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //  Lockable  //////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-#define MDS_LOCK_SCOPE(mutex) MDSplus::AutoLock al(mutex); (void)al
+#define MDS_LOCK_SCOPE(mutex) AutoLock al(mutex); (void)al
 
 class Lockable
 {
 public:
 
-    Lockable(const Lockable &) : m_mutex(new mds::Mutex) { }
+    Lockable(const Lockable &) : m_mutex(new Mutex) { }
 
-    Lockable() : m_mutex(new mds::Mutex) {}
+    Lockable() : m_mutex(new Mutex) {}
 
     ~Lockable() {
         delete m_mutex;
@@ -67,12 +127,12 @@ public:
 
     void unlock() const { m_mutex->unlock(); }
 
-    mds::Mutex & mutex() const { return *m_mutex; }
+    Mutex & mutex() const { return *m_mutex; }
 
-    operator mds::Mutex &() const { return *m_mutex; }
+    operator Mutex &() const { return *m_mutex; }
 
 private:
-    mds::Mutex *m_mutex;
+    Mutex *m_mutex;
 };
 
 

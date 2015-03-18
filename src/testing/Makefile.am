@@ -7,11 +7,10 @@ TESTS = \
  BuildTest \
  SerializeToBinTest \
  SerializeToShmTest \
- TreeUtilsTest \
  ContentProducerTest \
  ClassUtilsTest \
  DataUtilsTest \
- StatisticsUtilsTest
+ StatisticsUtilsTest \
  OptionsTest
 
 
@@ -21,7 +20,7 @@ TESTS = \
 # TEST =
 # endif
 
-LDADD = ../ccStickers.la
+LDADD = ../libccStickers.la
 
 check_PROGRAMS = $(TESTS)
 
