@@ -1,4 +1,4 @@
-SUBDIRS = . testing
+SUBDIRS = Core Math Graphic2D . testing
 
 include $(top_srcdir)/Common.am
 
@@ -14,7 +14,7 @@ library_include_HEADERS = \
  Threads.h
 
 
-_CORE_SOURCES = \
+_SOURCES = \
 ClassUtils.cpp \
 SerializeUtils.cpp \
 DataUtils.cpp \
@@ -23,5 +23,5 @@ ProducerConsumer.cpp \
 StatisticsUtils.cpp
 
 noinst_LTLIBRARIES = libccStickers.la
-libccStickers_la_SOURCES = ${_CORE_SOURCES}
+libccStickers_la_SOURCES = ${_SOURCES}
 

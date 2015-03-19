@@ -1,2 +1,6 @@
 src
 src/testing
+src/Core
+src/Core/testing
+src/Math
+src/Graphic2D

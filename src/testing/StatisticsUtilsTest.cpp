@@ -1,6 +1,7 @@
 
-#include "ClassUtils.h"
-#include "StatisticsUtils.h"
+#include "Core/Core.h"
+#include "Math/StatisticGen.h"
+#include "Math/StatisticUtils.h"
 
 #include "testing-prototype.h"
 
@@ -15,14 +16,6 @@ static Scalar test_dummy_mean(const std::vector<Scalar> &v) {
     return acc / v.size();
 }
 
-
-static Scalar test_kahan_mean(const std::vector<Scalar> &v) {
-    detail::mean_kahan<Scalar> mean;
-    foreach (Scalar val, v) {
-        mean << val;
-    }
-    return mean();
-}
 
 
 static Scalar test_dummy_variance(const std::vector<Scalar> &v) {
@@ -58,7 +51,7 @@ int main(int argc, char *argv[])
 
     { // TEST INCREMENTAL VARIANCE //
         std::vector<Scalar> data;
-        StatUtils::IncrementalOrder2 st;
+        StatisticUtils::IncrementalOrder2 st;
         int n = 0;
         do {
             Scalar val = StatisticGen::boxMuller(0,1);

@@ -190,6 +190,12 @@ AC_CONFIG_FILES([
         Makefile
         src/Makefile
         src/testing/Makefile
+        src/Core/Makefile
+        src/Core/testing/Makefile
+        src/Math/Makefile
+        src/Math/testing/Makefile
+        src/Graphic2D/Makefile
+        src/Graphic2D/testing/Makefile
         recipes/Makefile
 	])
 AC_OUTPUT

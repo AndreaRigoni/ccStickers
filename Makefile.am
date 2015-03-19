@@ -18,7 +18,12 @@ include Common.am
 # fix !
 LIBRARY_VERSION = 1:0:0
 
-CONLIBS = src/libccStickers.la
+CONLIBS = \
+          src/libccStickers.la \
+          src/Core/libccStickersCore.la \
+          src/Math/libccStickersMath.la \
+          src/Graphic2D/libccStickersGraphic2D.la
+
 
 lib_LTLIBRARIES = libccStickers.la
 libccStickers_la_SOURCES = ${_uLib_SOURCES}

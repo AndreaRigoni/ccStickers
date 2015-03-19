@@ -31,12 +31,14 @@ TimeHistogram createHistogram() {
     //        h << box_muller(0) / 2 + 5;
     //    }
 
-    TimeHistogram h("test",5,0,5);
+    TimeHistogram h("test",8,0,8);
     h << 1;
     h << 2 << 2;
     h << 3 << 3 << 3;
     h << 4 << 4 << 4 << 4;
-
+    h << 5 << 5 << 5;
+    h << 6 << 6;
+    h << 7;
     return h;
 }
 

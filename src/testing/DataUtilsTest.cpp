@@ -52,61 +52,61 @@ int main(int argc, char *argv[])
     }
 
 
-    { // FILL PLOT and PRINT OUT TO GNUPLOT FORMAT //
-        Curve2D curve1("curve1"), curve2("curve2"), curve3("curve3");
-        for(int i=0; i<10; ++i) {
-            Curve2D::Point pt;
-            double x = static_cast<double>(i)/10;
-            pt << x, sin(x), sin(x)/3;
-            curve1.AddPoint(pt);
-            curve2.AddPoint( Curve2D::Point(x, sin(x)/2 + (static_cast<float>(rand()) / RAND_MAX - 0.5) * 0.1, 0));
-            curve3.AddPoint( Curve2D::Point(x*2, sin(x), 0));
-        }
+//    { // FILL PLOT and PRINT OUT TO GNUPLOT FORMAT //
+//        Curve2D curve1("curve1"), curve2("curve2"), curve3("curve3");
+//        for(int i=0; i<10; ++i) {
+//            Curve2D::Point pt;
+//            double x = static_cast<double>(i)/10;
+//            pt << x, sin(x), sin(x)/3;
+//            curve1.AddPoint(pt);
+//            curve2.AddPoint( Curve2D::Point(x, sin(x)/2 + (static_cast<float>(rand()) / RAND_MAX - 0.5) * 0.1, 0));
+//            curve3.AddPoint( Curve2D::Point(x*2, sin(x), 0));
+//        }
 
-        curve1.Update();
-        curve2.Update();
-        curve3.Update();
+//        curve1.Update();
+//        curve2.Update();
+//        curve3.Update();
 
-        Plot2D plot("Test plot");
-        plot.AddCurve(curve1);
-        plot.AddCurve(curve2);
-        plot.AddCurve(curve3);
+//        Plot2D plot("Test plot");
+//        plot.AddCurve(curve1);
+//        plot.AddCurve(curve2);
+//        plot.AddCurve(curve3);
 
-        plot.XAxis() = curve1.XAxis();
-        plot.XAxis().name = "X-Axis";
-        plot.YAxis() = curve1.YAxis();
-        plot.YAxis().name = "Y-Axis";
+//        plot.XAxis() = curve1.XAxis();
+//        plot.XAxis().name = "X-Axis";
+//        plot.YAxis() = curve1.YAxis();
+//        plot.YAxis().name = "Y-Axis";
 
-        std::ofstream fout;
-        fout.open("test_gnuplot.csv");
-        plot.PrintToCsv(fout);
-        fout.close();
+//        std::ofstream fout;
+//        fout.open("test_gnuplot.csv");
+//        plot.PrintToCsv(fout);
+//        fout.close();
 
-        plot.PrintToGnuplotFile();
+//        plot.PrintToGnuplotFile();
 
-    }
+//    }
 
 
-    { // HISTOGRAMS //
+//    { // HISTOGRAMS //
 
-        Histogram<double> h("test",20,-5,5);
-        for (int i=0; i<5000; ++i) {
-            h << StatisticGen::boxMuller(0,1);
-        }
-        Curve2D curve = h;
+//        Histogram<double> h("test",20,-5,5);
+//        for (int i=0; i<5000; ++i) {
+//            h << StatisticGen::boxMuller(0,1);
+//        }
+//        Curve2D curve = h;
 
-        foreach (Point2D &pt, curve.Points()) {
-            pt(1) /= h.Size();
-            pt(2) = StatisticGen::noiseWhite() / 10;
-        }
+//        foreach (Point2D &pt, curve.Points()) {
+//            pt(1) /= h.Size();
+//            pt(2) = StatisticGen::noiseWhite() / 10;
+//        }
 
-        Plot2D plot("test histogram");
+//        Plot2D plot("test histogram");
 
-        plot.AddCurve(curve);
-        plot.CurveFlags(0) = Plot2D::ShowPoints | Plot2D::ShowLines;
+//        plot.AddCurve(curve);
+//        plot.CurveFlags(0) = Plot2D::ShowPoints | Plot2D::ShowLines;
 
-        plot.PrintToGnuplotFile("test_histogram");
-    }
+//        plot.PrintToGnuplotFile("test_histogram");
+//    }
 
 
 
