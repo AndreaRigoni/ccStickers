@@ -58,7 +58,7 @@ src/Core/streams_interaction.h
 src/Core/Thread.h
 src/Core/Timer.h
 src/Core/type_traits.h
-src/Core/UniquePtr.h
+src/Core/unique_ptr.h
 src/Graphic2D/testing/Makefile
 src/Graphic2D/testing/Makefile.am
 src/Graphic2D/testing/Makefile.in
@@ -123,3 +123,5 @@ Makefile.am
 Makefile.in
 README.md
 src/Math/testing/numeric_cast_Test.cpp
+src/Core/MplSequenceCombiner.h
+src/Core/testing/MplSequenceCombinerTest.cpp

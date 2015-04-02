@@ -12,7 +12,7 @@
 #include <stdlib.h> // exit //
 
 #include <Core/foreach.h>
-#include <Core/UniquePtr.h>
+#include <Core/unique_ptr.h>
 
 
 ////////////////////////////////////////////////////////////////////////////////

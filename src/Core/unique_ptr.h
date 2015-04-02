@@ -10,9 +10,11 @@
 template < typename T >
 class Deleter {
 public:
-//    static void _delete(mds::Data * ptr) {
-//        mds::deleteData(ptr);
-//    }
+
+    // other types with special deletion go here //
+    //    static void _delete(mds::Data * ptr) {
+    //        mds::deleteData(ptr);
+    //    }
 
     static void _delete(void * ptr) {
         delete (T*)(ptr);
@@ -21,8 +23,10 @@ public:
 
 template < typename T, typename D = Deleter<T> >
 class unique_ptr {
+
     unique_ptr(const T &ref) : ptr(new T(ref)) {}
     T *ptr;
+
 public:
 
     unique_ptr() : ptr(NULL) {}

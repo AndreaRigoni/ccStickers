@@ -3,7 +3,7 @@
 
 #include "macros.h"
 #include "type_traits.h"
-#include "UniquePtr.h"
+#include "unique_ptr.h"
 #include "Singleton.h"
 #include "AutoDelete.h"
 #include "CommaInitializer.h"
