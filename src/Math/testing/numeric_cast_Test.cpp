@@ -62,7 +62,7 @@ struct print_numeric_cast {
 
         try {
             ret &= std::numeric_limits<Target>::max() ==
-                    detail::numeric_cast<Target>(std::numeric_limits<Source>::max());
+                    numeric_cast<Target>(std::numeric_limits<Source>::max());
             what = "Ok";
         }
         catch (std::runtime_error e) {
@@ -73,7 +73,7 @@ struct print_numeric_cast {
 
         try {
             ret &= std::numeric_limits<Target>::min() ==
-                    detail::numeric_cast<Target>(std::numeric_limits<Source>::min());
+                    numeric_cast<Target>(std::numeric_limits<Source>::min());
             what = "Ok";
         }
         catch (std::runtime_error e) {
@@ -84,7 +84,7 @@ struct print_numeric_cast {
 
         try {
             ret &= ((Target)1) ==
-                    detail::numeric_cast<Target>((Source)1);
+                    numeric_cast<Target>((Source)1);
             what = "Ok";
         }
         catch (std::runtime_error e) {
@@ -95,7 +95,7 @@ struct print_numeric_cast {
 
         try {
             ret &= std::numeric_limits<Target>::epsilon() ==
-                    detail::numeric_cast<Target>(std::numeric_limits<Source>::epsilon());
+                    numeric_cast<Target>(std::numeric_limits<Source>::epsilon());
             what = "Ok";
         }
         catch (std::runtime_error e) {
@@ -107,7 +107,7 @@ struct print_numeric_cast {
         if(std::numeric_limits<Source>::has_quiet_NaN) {
             try {
                 ret &= std::numeric_limits<Target>::quiet_NaN() ==
-                        detail::numeric_cast<Target>(std::numeric_limits<Source>::quiet_NaN());
+                        numeric_cast<Target>(std::numeric_limits<Source>::quiet_NaN());
                 what = "Ok";
             }
             catch (std::runtime_error e) {
