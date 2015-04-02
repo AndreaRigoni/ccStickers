@@ -1,9 +1,9 @@
 include $(top_srcdir)/Common.am
 
-#AM_DEFAULT_SOURCE_EXT = .cpp
 
 # if HAVE_CHECK
-TESTS =
+TESTS = \
+        numeric_cast_Test
 
 # UuidTest
 

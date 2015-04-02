@@ -74,7 +74,7 @@ AC_CHECK_FUNCS([fesetround floor pow sqrt strdup strstr])
 AC_SEARCH_LIBS([strerror],[cposix])
 
 # Check for BOOST Libraries
-# BOOST_REQUIRE([1.34])
+BOOST_REQUIRE([1.34])
 
 # BOOST_ARRAY
 # BOOST_DATE_TIME

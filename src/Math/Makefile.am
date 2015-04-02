@@ -7,9 +7,9 @@ library_includedir = $(includedir)/ccStickers/Math
 library_include_HEADERS =
 
 
-_SOURCES = \
+MATH_SOURCES = \
            StatisticGen.cpp
 
 noinst_LTLIBRARIES = libccStickersMath.la
-libccStickersMath_la_SOURCES = ${_SOURCES}
+libccStickersMath_la_SOURCES = ${MATH_SOURCES}
 
