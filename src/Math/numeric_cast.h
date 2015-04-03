@@ -1,7 +1,7 @@
 #ifndef NUMERIC_CAST_H
 #define NUMERIC_CAST_H
 
-
+#include <iostream> // remove
 
 #include <math.h>
 #include <limits>
@@ -13,6 +13,22 @@
 
 
 
+// todo: partial specialize ... or enable_if ..
+
+template < typename T >
+class numeric_limits : public std::numeric_limits<T> {
+public:
+    typedef std::numeric_limits<T> BaseClass;
+
+    static inline T highest() {
+        return BaseClass::max();
+    }
+
+    static inline T lowest() {
+        if( BaseClass::is_integer ) return BaseClass::min();
+        else return -BaseClass::max();
+    }
+};
 
 
 
@@ -36,71 +52,167 @@ are_same(T x, T y, int ulp)
 }
 
 
-
-
-// YOU SHOULD PREFER BOOST CONVERSION IT IS BASED ON TRAITS //
-// #include <boost/numeric/conversion/cast.hpp>
-
+// YOU REALLY SHOULD PREFER BOOST CONVERSION //
+//#include <boost/numeric/conversion/cast.hpp>
 
 // LIMITS VERSION //
-
 namespace detail {
 
-// FLOAT TYPES //
-template <typename Target, typename Source>
-inline
-typename enable_if<!std::numeric_limits<Source>::is_integer, Target >::type
-numeric_cast(Source value )
-{
-    static const bool is_coercion = std::numeric_limits<Source>::digits > std::numeric_limits<Target>::digits;
+template < typename Target, typename Source >
+struct numeric_cast_trait {
+    typedef numeric_limits<Source> Slimits;
+    typedef numeric_limits<Target> Tlimits;
+    static const bool is_coercion = Slimits::digits > Tlimits::digits;
+    static const bool is_u2s = !Slimits::is_signed && Tlimits::is_signed;
+    static const bool is_s2u = Slimits::is_signed && !Tlimits::is_signed;
+};
 
-    if(!std::numeric_limits<Target>::has_quiet_NaN && isnan(value) )
-        throw( std::range_error("nan exception") );
 
-    if(is_coercion && value != static_cast<Source>(static_cast<Target>(value)) ) {
-        throw(std::range_error("scalar loss of precision") );
-    }
-    else if ( value < static_cast<Source>(std::numeric_limits<Target>::min()) )
-        throw ( std::underflow_error("scalar cast underflow") );
-    else if( value > static_cast<Source>(std::numeric_limits<Target>::max()) )
-        throw ( std::overflow_error("scalar cast overflow"));
-
-    return static_cast<Target>(value);
-}
-
-// INTEGER TYPES //
-template <typename Target, typename Source>
-inline
-typename enable_if<std::numeric_limits<Source>::is_integer, Target >::type
-numeric_cast(Source value) {
-
-    static const bool is_coercion = std::numeric_limits<Source>::digits > std::numeric_limits<Target>::digits;
-    static const bool u2s = !std::numeric_limits<Source>::is_signed && std::numeric_limits<Target>::is_signed;
-    static const bool s2u = std::numeric_limits<Source>::is_signed && !std::numeric_limits<Target>::is_signed;
-
-    if( is_coercion && !u2s ) {
-        if ( value < static_cast<Source>(std::numeric_limits<Target>::min()) )
+template < typename Target, typename Source, typename EnableIf = void >
+struct numeric_cast_bound_rule {
+    static inline Target apply(Source value) {
+        if ( value < static_cast<Source>( numeric_limits<Target>::lowest() ) )
             throw ( std::underflow_error("scalar cast underflow") );
-        else if( value > static_cast<Source>(std::numeric_limits<Target>::max()) )
+        if( value > static_cast<Source>( numeric_limits<Target>::highest() ) )
             throw ( std::overflow_error("scalar cast overflow"));
+        return static_cast<Target>(value);
     }
-    if( is_coercion && u2s ) {
-        if( value > static_cast<Source>(std::numeric_limits<Target>::max()) )
-            throw ( std::overflow_error("scalar cast overflow"));
-    }
-    else if( !is_coercion && s2u ) {
+};
+
+template < typename Target, typename Source, typename EnableIf = void >
+struct numeric_cast_sign_rule {
+    static inline Target apply(Source value) {
         if ( value < 0 )
             throw ( std::underflow_error("scalar cast underflow") );
+        return static_cast<Target>(value);
     }
-    return static_cast<Target>(value);
-}
+};
+
+template < typename Target, typename Source, typename EnableIf = void >
+struct numeric_cast_precision_rule {
+    static inline Target apply(Source value) {
+        if(value != static_cast<Source>(static_cast<Target>(value)) )
+            throw(std::range_error("scalar loss of precision") );
+        return static_cast<Target>(value);
+    }
+};
+
+
+
+template <typename Target, typename Source, class Enable = void >
+struct NumericCastImpl {
+    static Target numeric_cast(Source value ) {
+        throw std::runtime_error("numeric_cast is not defined for this types");
+    }
+};
+
+template < typename Target, typename Source >
+struct NumericCastImpl < Target, Source,
+        typename enable_if<
+        numeric_limits<Source>::is_integer &&
+        numeric_limits<Target>::is_integer &&
+        numeric_cast_trait<Target,Source>::is_s2u
+        >
+        ::type >
+{
+    static Target numeric_cast(Source value ) {
+        return numeric_cast_sign_rule<Target,Source>::apply(value);
+    }
+};
+
+template < typename Target, typename Source >
+struct NumericCastImpl < Target, Source,
+        typename enable_if<
+        numeric_limits<Source>::is_integer &&
+        numeric_limits<Target>::is_integer &&
+        !numeric_cast_trait<Target,Source>::is_s2u
+        >
+        ::type >
+{
+    static Target numeric_cast(Source value ) {
+        Target result = numeric_cast_bound_rule<Target,Source>::apply(value);
+        return result;
+    }
+};
+
+template < typename Target, typename Source >
+struct NumericCastImpl < Target, Source,
+        typename enable_if<
+        numeric_limits<Source>::is_integer &&
+        !numeric_limits<Target>::is_integer &&
+        numeric_cast_trait<Target,Source>::is_coercion
+        >
+        ::type >
+{
+    static Target numeric_cast(Source value ) {
+        return numeric_cast_precision_rule<Target,Source>::apply(value);
+    }
+};
+
+template < typename Target, typename Source >
+struct NumericCastImpl < Target, Source,
+        typename enable_if<
+        numeric_limits<Source>::is_integer &&
+        !numeric_limits<Target>::is_integer &&
+        !numeric_cast_trait<Target,Source>::is_coercion
+        >
+        ::type >
+{
+    static Target numeric_cast(Source value ) {
+        return static_cast<Target>(value);
+    }
+};
+
+template < typename Target, typename Source >
+struct NumericCastImpl < Target, Source,
+        typename enable_if<
+        !numeric_limits<Source>::is_integer &&
+        numeric_limits<Target>::is_integer
+        >
+        ::type >
+{
+    static Target numeric_cast(Source value ) {
+        return numeric_cast_precision_rule<Target,Source>::apply(value);
+    }
+};
+
+template < typename Target, typename Source >
+struct NumericCastImpl < Target, Source,
+        typename enable_if<
+        !numeric_limits<Source>::is_integer &&
+        !numeric_limits<Target>::is_integer &&
+        numeric_cast_trait<Target,Source>::is_coercion
+        >
+        ::type >
+{
+    static Target numeric_cast(Source value ) {
+        numeric_cast_precision_rule<Target,Source>::apply(value);
+        return numeric_cast_bound_rule<Target,Source>::apply(value);
+    }
+};
+
+template < typename Target, typename Source >
+struct NumericCastImpl < Target, Source,
+        typename enable_if<
+        !numeric_limits<Source>::is_integer &&
+        !numeric_limits<Target>::is_integer &&
+        !numeric_cast_trait<Target,Source>::is_coercion
+        >
+        ::type >
+{
+    static Target numeric_cast(Source value ) {
+        return static_cast<Target>(value);
+    }
+};
+
+
 } // detail
 
 
 
 template <typename Target, typename Source>
 inline Target numeric_cast(Source value) {
-    return detail::numeric_cast<Target>(value);
+        return detail::NumericCastImpl<Target,Source>::numeric_cast(value);
 }
 
 

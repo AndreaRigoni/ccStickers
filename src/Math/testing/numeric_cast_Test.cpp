@@ -61,8 +61,8 @@ struct print_numeric_cast {
         bool ret = true;
 
         try {
-            ret &= std::numeric_limits<Target>::max() ==
-                    numeric_cast<Target>(std::numeric_limits<Source>::max());
+            ret &= numeric_limits<Target>::max() ==
+                    numeric_cast<Target>(numeric_limits<Source>::max());
             what = "Ok";
         }
         catch (std::runtime_error e) {
@@ -72,8 +72,8 @@ struct print_numeric_cast {
         std::cout << "max: " << what << "\n";
 
         try {
-            ret &= std::numeric_limits<Target>::min() ==
-                    numeric_cast<Target>(std::numeric_limits<Source>::min());
+            ret &= numeric_limits<Target>::lowest() ==
+                    numeric_cast<Target>(numeric_limits<Source>::lowest());
             what = "Ok";
         }
         catch (std::runtime_error e) {
@@ -94,8 +94,8 @@ struct print_numeric_cast {
         std::cout << "one: " << what << "\n";
 
         try {
-            ret &= std::numeric_limits<Target>::epsilon() ==
-                    numeric_cast<Target>(std::numeric_limits<Source>::epsilon());
+            ret &= numeric_limits<Target>::epsilon() ==
+                    numeric_cast<Target>(numeric_limits<Source>::epsilon());
             what = "Ok";
         }
         catch (std::runtime_error e) {
@@ -104,10 +104,10 @@ struct print_numeric_cast {
         }
         std::cout << "eps: " << what << "\n";
 
-        if(std::numeric_limits<Source>::has_quiet_NaN) {
+        if(numeric_limits<Source>::has_quiet_NaN) {
             try {
-                ret &= std::numeric_limits<Target>::quiet_NaN() ==
-                        numeric_cast<Target>(std::numeric_limits<Source>::quiet_NaN());
+                ret &= numeric_limits<Target>::quiet_NaN() ==
+                        numeric_cast<Target>(numeric_limits<Source>::quiet_NaN());
                 what = "Ok";
             }
             catch (std::runtime_error e) {
@@ -124,7 +124,7 @@ struct print_numeric_cast {
 
 
 
-typedef mpl::vector<unsigned char, float, double > types;
+typedef mpl::vector<short, int > types;
 typedef mpl::combine_view< boost::mpl::vector<types, types> > type_pair;
 
 int main(int argc, char *argv[])
@@ -135,6 +135,7 @@ int main(int argc, char *argv[])
 
     std::cout << " ---------- TEST ---------------- \n";
     mpl::for_each<type_pair>( print_numeric_cast() );
+
 
 
     return 0;
