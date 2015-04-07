@@ -127,6 +127,7 @@ struct print_numeric_cast {
 typedef mpl::vector<float, unsigned int> types;
 typedef mpl::combine_view< boost::mpl::vector<types, types> > type_pair;
 
+
 int main(int argc, char *argv[])
 {
     std::cout << "Using these typeid: ";
@@ -135,7 +136,6 @@ int main(int argc, char *argv[])
 
     std::cout << " ---------- TEST ---------------- \n";
     mpl::for_each<type_pair>( print_numeric_cast() );
-
 
 
     return 0;

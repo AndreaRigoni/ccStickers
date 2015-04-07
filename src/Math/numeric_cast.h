@@ -12,6 +12,10 @@
 #include "Core/type_traits.h"
 
 
+////////////////////////////////////////////////////////////////////////////////
+//  Numeric Limits  ////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
 
 /// Numeric Limits for Floating types
 template < typename T, typename EnableIf = void >
@@ -40,28 +44,14 @@ public:
 
 
 
-template < typename T >
-bool are_same(T a, T b) {
-    return std::fabs(a - b) < std::numeric_limits<T>::epsilon();
-}
-
-
-// THIS COMES FROM EPSILON DOCUMENTATION //
-template<class T>
-typename enable_if<!std::numeric_limits<T>::is_integer, bool>::type
-are_same(T x, T y, int ulp)
-{
-    // the machine epsilon has to be scaled to the magnitude of the values used
-    // and multiplied by the desired precision in ULPs (units in the last place)
-    return std::abs(x-y) < std::numeric_limits<T>::epsilon() * std::abs(x+y) * ulp
-    // unless the result is subnormal
-           || std::abs(x-y) < std::numeric_limits<T>::min();
-}
-
 
 // YOU REALLY SHOULD PREFER BOOST CONVERSION //
 //#include <boost/numeric/conversion/cast.hpp>
 
+
+////////////////////////////////////////////////////////////////////////////////
+//  numeric_cast  //////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -100,9 +90,8 @@ template < typename Target, typename Source, typename EnableIf = void >
 struct numeric_cast_precision_rule {
     typedef numeric_cast_trait<Target,Source> trait;
     static inline void apply(Source value) {
-
         if( trait::is_coercion ) {
-            if( value > static_cast<Source>(1<<numeric_limits<Target>::digits-1) )
+            if( value > (Source)(1<<numeric_limits<Target>::digits-1) )
                 throw(std::range_error("scalar loss of precision for digit overflow") );
             if( trait::Slimits::is_signed && value < -static_cast<Source>(1<<numeric_limits<Target>::digits-1) )
                 throw(std::range_error("scalar loss of precision for digit underflow") );
@@ -120,11 +109,10 @@ struct numeric_cast_precision_rule {
 
 template <typename Target, typename Source, class Enable = void >
 struct NumericCastImpl {
-    static Target numeric_cast(Source value ) {
-        throw std::runtime_error("numeric_cast is not defined for this types");
-    }
+    static Target numeric_cast(Source value ) {}
 };
 
+// Integer -> Integer
 template < typename Target, typename Source >
 struct NumericCastImpl < Target, Source,
         typename enable_if<
@@ -160,7 +148,7 @@ struct NumericCastImpl < Target, Source,
     }
 };
 
-// I2F
+// Integer -> Float
 template < typename Target, typename Source >
 struct NumericCastImpl < Target, Source,
         typename enable_if<
@@ -190,7 +178,7 @@ struct NumericCastImpl < Target, Source,
     }
 };
 
-// F2I
+// Float -> Integer
 template < typename Target, typename Source >
 struct NumericCastImpl < Target, Source,
         typename enable_if<
@@ -209,7 +197,7 @@ struct NumericCastImpl < Target, Source,
 };
 
 
-// F2F
+// Float -> Float
 template < typename Target, typename Source >
 struct NumericCastImpl < Target, Source,
         typename enable_if<
