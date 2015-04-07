@@ -125,3 +125,4 @@ README.md
 src/Math/testing/numeric_cast_Test.cpp
 src/Core/MplSequenceCombiner.h
 src/Core/testing/MplSequenceCombinerTest.cpp
+src/Math/are_same.h
