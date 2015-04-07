@@ -13,22 +13,29 @@
 
 
 
-// todo: partial specialize ... or enable_if ..
-
-template < typename T >
-class numeric_limits : public std::numeric_limits<T> {
+/// Numeric Limits for Floating types
+template < typename T, typename EnableIf = void >
+class numeric_limits : public std::numeric_limits<T>
+{
 public:
     typedef std::numeric_limits<T> BaseClass;
-
-    static inline T highest() {
-        return BaseClass::max();
-    }
-
-    static inline T lowest() {
-        if( BaseClass::is_integer ) return BaseClass::min();
-        else return -BaseClass::max();
-    }
+    static inline T highest() { return BaseClass::max(); }
+    static inline T lowest() { return -BaseClass::max(); }
 };
+
+/// Numeric Limits for Integer types
+template < typename T >
+class numeric_limits<T, typename enable_if<
+        std::numeric_limits<T>::is_integer>
+        ::type > :
+        public std::numeric_limits<T>
+{
+public:
+    typedef std::numeric_limits<T> BaseClass;
+    static inline T highest() { return BaseClass::max(); }
+    static inline T lowest() { return BaseClass::min(); }
+};
+
 
 
 
@@ -55,7 +62,11 @@ are_same(T x, T y, int ulp)
 // YOU REALLY SHOULD PREFER BOOST CONVERSION //
 //#include <boost/numeric/conversion/cast.hpp>
 
+
+
+
 // LIMITS VERSION //
+
 namespace detail {
 
 template < typename Target, typename Source >
@@ -68,15 +79,6 @@ struct numeric_cast_trait {
 };
 
 
-template < typename Target, typename Source, typename EnableIf = void >
-struct numeric_cast_bound_rule {
-    static inline void apply(Source value) {
-        if( value > static_cast<Source>(numeric_limits<Target>::highest() ) )
-            throw(std::range_error("scalar cast overflow") );
-        if( value < static_cast<Source>(numeric_limits<Target>::lowest() ) )
-            throw(std::range_error("scalar cast underflow") );
-    }
-};
 
 template < typename Target, typename Source, typename EnableIf = void >
 struct numeric_cast_max_rule {
@@ -87,10 +89,10 @@ struct numeric_cast_max_rule {
 };
 
 template < typename Target, typename Source, typename EnableIf = void >
-struct numeric_cast_sign_rule {
+struct numeric_cast_min_rule {
     static inline void apply(Source value) {
-        if ( value < 0 )
-            throw ( std::underflow_error("scalar cast underflow") );
+        if( value < static_cast<Source>( numeric_limits<Target>::lowest() ) )
+            throw ( std::overflow_error("scalar cast underflow"));
     }
 };
 
@@ -111,6 +113,10 @@ struct numeric_cast_precision_rule {
 };
 
 
+////////////////////////////////////////////////////////////////////////////////
+//  NumericCastImpl  ///////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
 
 template <typename Target, typename Source, class Enable = void >
 struct NumericCastImpl {
@@ -129,11 +135,11 @@ struct NumericCastImpl < Target, Source,
         ::type >
 {
     static Target numeric_cast(Source value ) {
-        if( numeric_cast_trait<Target,Source>::is_u2s ) {
+        if( numeric_cast_trait<Target,Source>::is_u2s )
             numeric_cast_max_rule<Target,Source>::apply(value);
-        }
         else
-            numeric_cast_bound_rule<Target,Source>::apply(value);
+            numeric_cast_min_rule<Target,Source>::apply(value);
+            numeric_cast_max_rule<Target,Source>::apply(value);
         return static_cast<Target>(value);
     }
 };
@@ -149,7 +155,7 @@ struct NumericCastImpl < Target, Source,
 {
     static Target numeric_cast(Source value ) {
         if( numeric_cast_trait<Target,Source>::is_s2u )
-            numeric_cast_sign_rule<Target,Source>::apply(value);
+            numeric_cast_min_rule<Target,Source>::apply(value);
         return static_cast<Target>(value);
     }
 };
@@ -194,7 +200,8 @@ struct NumericCastImpl < Target, Source,
         ::type >
 {
     static Target numeric_cast(Source value ) {
-        numeric_cast_bound_rule<Target,Source>::apply(value);
+        numeric_cast_min_rule<Target,Source>::apply(value);
+        numeric_cast_max_rule<Target,Source>::apply(value);
         numeric_cast_precision_rule<Target,Source>::apply(value);
         return static_cast<Target>(value);
 
@@ -213,7 +220,8 @@ struct NumericCastImpl < Target, Source,
         ::type >
 {
     static Target numeric_cast(Source value ) {
-        numeric_cast_bound_rule<Target,Source>::apply(value);
+        numeric_cast_min_rule<Target,Source>::apply(value);
+        numeric_cast_max_rule<Target,Source>::apply(value);
         numeric_cast_precision_rule<Target,Source>::apply(value);
         return static_cast<Target>(value);
     }
