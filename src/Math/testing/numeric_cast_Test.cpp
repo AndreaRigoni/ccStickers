@@ -124,7 +124,7 @@ struct print_numeric_cast {
 
 
 
-typedef mpl::vector<short, int > types;
+typedef mpl::vector<float, int > types;
 typedef mpl::combine_view< boost::mpl::vector<types, types> > type_pair;
 
 int main(int argc, char *argv[])

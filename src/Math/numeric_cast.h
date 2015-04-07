@@ -70,30 +70,43 @@ struct numeric_cast_trait {
 
 template < typename Target, typename Source, typename EnableIf = void >
 struct numeric_cast_bound_rule {
-    static inline Target apply(Source value) {
-        if ( value < static_cast<Source>( numeric_limits<Target>::lowest() ) )
-            throw ( std::underflow_error("scalar cast underflow") );
+    static inline void apply(Source value) {
+        if( value > static_cast<Source>(numeric_limits<Target>::highest() ) )
+            throw(std::range_error("scalar cast overflow") );
+        if( value < static_cast<Source>(numeric_limits<Target>::lowest() ) )
+            throw(std::range_error("scalar cast underflow") );
+    }
+};
+
+template < typename Target, typename Source, typename EnableIf = void >
+struct numeric_cast_max_rule {
+    static inline void apply(Source value) {
         if( value > static_cast<Source>( numeric_limits<Target>::highest() ) )
             throw ( std::overflow_error("scalar cast overflow"));
-        return static_cast<Target>(value);
     }
 };
 
 template < typename Target, typename Source, typename EnableIf = void >
 struct numeric_cast_sign_rule {
-    static inline Target apply(Source value) {
+    static inline void apply(Source value) {
         if ( value < 0 )
             throw ( std::underflow_error("scalar cast underflow") );
-        return static_cast<Target>(value);
     }
 };
 
 template < typename Target, typename Source, typename EnableIf = void >
 struct numeric_cast_precision_rule {
-    static inline Target apply(Source value) {
+    typedef numeric_cast_trait<Target,Source> trait;
+    static inline void apply(Source value) {
+
+        if( trait::is_coercion ) {
+            if( value > static_cast<Source>(1<<numeric_limits<Target>::digits-1) )
+                throw(std::range_error("scalar loss of precision for digit overflow") );
+            if( trait::Slimits::is_signed && value < -static_cast<Source>(1<<numeric_limits<Target>::digits-1) )
+                throw(std::range_error("scalar loss of precision for digit underflow") );
+        }
         if(value != static_cast<Source>(static_cast<Target>(value)) )
             throw(std::range_error("scalar loss of precision") );
-        return static_cast<Target>(value);
     }
 };
 
@@ -111,12 +124,17 @@ struct NumericCastImpl < Target, Source,
         typename enable_if<
         numeric_limits<Source>::is_integer &&
         numeric_limits<Target>::is_integer &&
-        numeric_cast_trait<Target,Source>::is_s2u
+        numeric_cast_trait<Target,Source>::is_coercion
         >
         ::type >
 {
     static Target numeric_cast(Source value ) {
-        return numeric_cast_sign_rule<Target,Source>::apply(value);
+        if( numeric_cast_trait<Target,Source>::is_u2s ) {
+            numeric_cast_max_rule<Target,Source>::apply(value);
+        }
+        else
+            numeric_cast_bound_rule<Target,Source>::apply(value);
+        return static_cast<Target>(value);
     }
 };
 
@@ -125,16 +143,18 @@ struct NumericCastImpl < Target, Source,
         typename enable_if<
         numeric_limits<Source>::is_integer &&
         numeric_limits<Target>::is_integer &&
-        !numeric_cast_trait<Target,Source>::is_s2u
+        !numeric_cast_trait<Target,Source>::is_coercion
         >
         ::type >
 {
     static Target numeric_cast(Source value ) {
-        Target result = numeric_cast_bound_rule<Target,Source>::apply(value);
-        return result;
+        if( numeric_cast_trait<Target,Source>::is_s2u )
+            numeric_cast_sign_rule<Target,Source>::apply(value);
+        return static_cast<Target>(value);
     }
 };
 
+// I2F
 template < typename Target, typename Source >
 struct NumericCastImpl < Target, Source,
         typename enable_if<
@@ -145,7 +165,8 @@ struct NumericCastImpl < Target, Source,
         ::type >
 {
     static Target numeric_cast(Source value ) {
-        return numeric_cast_precision_rule<Target,Source>::apply(value);
+        numeric_cast_precision_rule<Target,Source>::apply(value);
+        return static_cast<Target>(value);
     }
 };
 
@@ -163,6 +184,7 @@ struct NumericCastImpl < Target, Source,
     }
 };
 
+// F2I
 template < typename Target, typename Source >
 struct NumericCastImpl < Target, Source,
         typename enable_if<
@@ -172,10 +194,15 @@ struct NumericCastImpl < Target, Source,
         ::type >
 {
     static Target numeric_cast(Source value ) {
-        return numeric_cast_precision_rule<Target,Source>::apply(value);
+        numeric_cast_bound_rule<Target,Source>::apply(value);
+        numeric_cast_precision_rule<Target,Source>::apply(value);
+        return static_cast<Target>(value);
+
     }
 };
 
+
+// F2F
 template < typename Target, typename Source >
 struct NumericCastImpl < Target, Source,
         typename enable_if<
@@ -186,8 +213,9 @@ struct NumericCastImpl < Target, Source,
         ::type >
 {
     static Target numeric_cast(Source value ) {
+        numeric_cast_bound_rule<Target,Source>::apply(value);
         numeric_cast_precision_rule<Target,Source>::apply(value);
-        return numeric_cast_bound_rule<Target,Source>::apply(value);
+        return static_cast<Target>(value);
     }
 };
 
