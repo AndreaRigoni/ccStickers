@@ -1,0 +1,15 @@
+#ifndef INTERFACEPROXY
+#define INTERFACEPROXY
+
+
+
+
+
+
+
+
+
+
+
+#endif // INTERFACEPROXY
+

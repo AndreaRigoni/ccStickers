@@ -1,6 +1,6 @@
 SUBDIRS = src . recipes
 
-ACLOCAL_AMFLAGS = -I m4
+ACLOCAL_AMFLAGS = -I conf/m4
 
 include Common.am
 

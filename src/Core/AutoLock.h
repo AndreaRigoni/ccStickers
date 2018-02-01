@@ -7,20 +7,14 @@
 //  Autolock  //////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
+#define CCS_LOCK_SCOPE(mutex) AutoLock al(mutex); (void)al
 
 class AutoLock {
 public:
-    AutoLock(Mutex & mutex): mutex(mutex) {
-        mutex.lock();
-    }
-
-    ~AutoLock() {
-        mutex.unlock();
-    }
-
+    AutoLock(Mutex & mutex): mutex(mutex) {  mutex.lock(); }
+    ~AutoLock() { mutex.unlock(); }
 private:
     Mutex & mutex;
-
 };
 
 

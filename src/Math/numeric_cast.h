@@ -1,7 +1,7 @@
 #ifndef NUMERIC_CAST_H
 #define NUMERIC_CAST_H
 
-#include <iostream> // remove
+
 
 #include <math.h>
 #include <limits>
@@ -91,15 +91,25 @@ struct numeric_cast_precision_rule {
     typedef numeric_cast_trait<Target,Source> trait;
     static inline void apply(Source value) {
         if( trait::is_coercion ) {
-            if( value > (Source)(1<<numeric_limits<Target>::digits-1) )
+            if( value > (Source)(1<<numeric_limits<Target>::digits) )
                 throw(std::range_error("scalar loss of precision for digit overflow") );
-            if( trait::Slimits::is_signed && value < -static_cast<Source>(1<<numeric_limits<Target>::digits-1) )
+            if( trait::Slimits::is_signed && value < -static_cast<Source>(1<<numeric_limits<Target>::digits) )
                 throw(std::range_error("scalar loss of precision for digit underflow") );
         }
         if(value != static_cast<Source>(static_cast<Target>(value)) )
             throw(std::range_error("scalar loss of precision") );
     }
 };
+
+template < typename Target, typename Source, typename EnableIf = void >
+struct numeric_cast_nan_rule {
+    typedef numeric_cast_trait<Target,Source> trait;
+    static inline void apply(Source value) {
+        if( isnan(value) )
+            throw(std::range_error("Trying to convert Nan to an Integer type"));
+    }
+};
+
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -190,6 +200,7 @@ struct NumericCastImpl < Target, Source,
     static Target numeric_cast(Source value ) {
         numeric_cast_min_rule<Target,Source>::apply(value);
         numeric_cast_max_rule<Target,Source>::apply(value);
+        numeric_cast_nan_rule<Target,Source>::apply(value);
         numeric_cast_precision_rule<Target,Source>::apply(value);
         return static_cast<Target>(value);
 

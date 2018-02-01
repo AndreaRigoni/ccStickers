@@ -10,7 +10,8 @@ TESTS = \
  ContentProducerTest \
  ClassUtilsTest \
  DataUtilsTest \
- StatisticsUtilsTest
+ StatisticsUtilsTest \
+ ProxyInterfaceExample
 
 
 # else

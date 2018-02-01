@@ -31,9 +31,6 @@ struct PrintSeq {
 
 
 
-
-
-
 template < typename Pair >
 class SequenceCast {
 public:
@@ -130,6 +127,8 @@ typedef mpl::combine_view< boost::mpl::vector<types, types> > type_pair;
 
 int main(int argc, char *argv[])
 {
+    BEGIN_TESTING(numeric_cast);
+
     std::cout << "Using these typeid: ";
     mpl::for_each<types> ( PrintTypeId() );
     std::cout << "\n";
@@ -137,6 +136,7 @@ int main(int argc, char *argv[])
     std::cout << " ---------- TEST ---------------- \n";
     mpl::for_each<type_pair>( print_numeric_cast() );
 
+    // FInIRE
 
-    return 0;
+    END_TESTING;
 }
