@@ -5,8 +5,7 @@
 
 ########### INIT #######################################
 AC_INIT([ccStickers],[1.0],[andrea.rigoni@pd.infn.it])
-
-AC_CONFIG_MACRO_DIRS([conf/m4])
+AC_CONFIG_MACRO_DIR([conf/m4])
 AC_CONFIG_AUX_DIR([conf])
 AM_INIT_AUTOMAKE([subdir-objects])
 

@@ -5,8 +5,8 @@ include $(top_srcdir)/Common.am
 # if HAVE_CHECK
 TESTS = \
         CoreTest \
-        OptionsTest \
-        MplSequenceCombinerTest
+		OptionsTest
+#        MplSequenceCombinerTest
 
 
 # UuidTest
