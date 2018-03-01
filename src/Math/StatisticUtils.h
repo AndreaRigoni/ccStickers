@@ -104,7 +104,7 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 
 
-class StatisticUtils {
+class StatUtils {
 public:
 
     typedef detail::incremental_order2 IncrementalOrder2;

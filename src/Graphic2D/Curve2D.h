@@ -31,6 +31,20 @@ public:
         std::string name;
         double limits[2];
         double ticks;
+
+        bool empty() const {
+            return name == ""
+                    && limits[0] == 0
+                    && limits[1] == 0
+                    && ticks == 1;
+        }
+
+        bool operator == (const Axis &other) const {
+            return this->name == other.name
+                    && this->limits[0] == other.limits[0]
+                    && this->limits[1] == other.limits[1]
+                    && this->ticks == other.ticks;
+        }
     };
 
     Curve2D() {}
@@ -43,13 +57,13 @@ public:
 
     template < typename _T >
     void AddPoint( const ScalarArray<_T,3> &pt ) {
-//        CCS_LOCK_SCOPE(*this); // ERROR ... bug on  Lockable?
+//        MDS_LOCK_SCOPE(*this);
         m_data.push_back ( (Point)pt );
     }
 
     friend std::ostream &
     operator << (std::ostream &o, const Curve2D &curve) {
-        o << "Curve: " << curve.GetName() << "\n";
+        o<< "Curve: " << curve.GetName() << "\n";
         for(size_t i=0; i<curve.m_data.size(); ++i) {
             const Point &pt = curve.m_data[i];
             o << pt(0) << "," << pt(1) << "\n";
@@ -80,13 +94,12 @@ public:
     Point & operator[](size_t id) { return m_data[id]; }
     const Point & operator[](size_t id) const { return m_data[id]; }
 
-
+    void PrintSelf_abs(std::ostream &o, int nbins) const;
 
 private:
     std::vector<Point> m_data;
     Axis m_axis[2];
 };
-
 
 
 #endif // CURVE2D_H

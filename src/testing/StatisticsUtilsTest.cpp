@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
 
     { // TEST INCREMENTAL VARIANCE //
         std::vector<Scalar> data;
-        StatisticUtils::IncrementalOrder2 st;
+        StatUtils::IncrementalOrder2 st;
         int n = 0;
         do {
             Scalar val = StatisticGen::boxMuller(0,1);

@@ -64,6 +64,7 @@ src/Core/Named.h
 src/Core/Options.cpp
 src/Core/Options.h
 src/Core/Pool.h
+src/Core/ProgressOutput.h
 src/Core/RawBuffer.h
 src/Core/SerializeToBin.cpp
 src/Core/SerializeToBin.h
@@ -90,6 +91,7 @@ src/FileUtils.h
 src/Graphic2D/ColorRGB.cpp
 src/Graphic2D/ColorRGB.h
 src/Graphic2D/ColorRGBList.h
+src/Graphic2D/Curve2D.cpp
 src/Graphic2D/Curve2D.h
 src/Graphic2D/Makefile.am
 src/Graphic2D/Plot2D.cpp

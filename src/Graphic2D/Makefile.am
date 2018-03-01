@@ -9,7 +9,8 @@ library_include_HEADERS =
 
 _SOURCES = \
            ColorRGB.cpp \
-           Plot2D.cpp
+		   Plot2D.cpp \
+		   Curve2D.cpp
 
 noinst_LTLIBRARIES = libccStickersGraphic2D.la
 libccStickersGraphic2D_la_SOURCES = ${_SOURCES}

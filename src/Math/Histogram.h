@@ -2,9 +2,12 @@
 #define HISTOGRAM_H
 
 #include <vector>
+#include <string.h>
 
+#include "Core/CsvDataFile.h"
 #include "Math/StatisticUtils.h"
 #include "Math/Accumulator.h"
+#include "Graphic2D/Curve2D.h"
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -36,16 +39,33 @@ public:
         else if (bin >= (int)BinSize())
             ++m_overf;
         else {
-            ++m_bins.at( bin );
+            //            ++m_bins.at( bin );
+            m_bins.at( bin ) += 1.;
             m_stat << data;
         }
         BaseClass::Push(data);
     }
 
+    void Push(const T x, const T y) {
+        int bin = this->get_bin(x);
+        if(bin < 0)
+            ++m_underf;
+        else if (bin >= (int)BinSize())
+            ++m_overf;
+        else {
+            m_bins.at( bin ) += y;
+            // WARNING ... not weitgh here //
+            m_stat << x;
+        }
+        // WARNING ... not weitgh here //
+        BaseClass::Push(x);
+    }
+
+
     void Clear() {
         std::fill(m_bins.begin(), m_bins.end(), 0);
         m_overf = m_underf = 0;
-        m_stat = StatisticUtils::IncrementalOrder2();
+        m_stat = StatUtils::IncrementalOrder2();
         BaseClass::Clear();
     }
 
@@ -55,10 +75,11 @@ public:
 
     inline void operator<<(const T data) { Push(data); }
 
-    inline std::pair<T,size_t> operator[](unsigned int bin) const { return std::make_pair(get_pos(bin),m_bins.at(bin)); }
+    //    inline std::pair<T,size_t> operator[](unsigned int bin) const { return std::make_pair(get_pos(bin),m_bins.at(bin)); }`
+    inline std::pair<T,double> operator[](unsigned int bin) const { return std::make_pair(get_pos(bin),m_bins.at(bin)); }
 
-    inline size_t operator()(const T pos) const { return m_bins.at(get_bin(pos)); }
-
+    //    inline size_t operator()(const T pos) const { return m_bins.at(get_bin(pos)); }
+    inline double operator()(const T pos) const { return m_bins.at(get_bin(pos)); }
 
     double Mean() const { return m_stat.mean(); }
 
@@ -78,30 +99,33 @@ public:
             o << this->get_pos(i) << _c << this->m_bins[i] << "\n";
     }
 
-    void PrintSelfInline(std::ostream &o) const {
-        static const char *lut = "_,.-''"; // 5 levels histogram //
+    void PrintSelfInline(std::ostream &o, const char *lut = "_,.-~'`")
+    const {
         double max = *std::max_element(m_bins.begin(), m_bins.end());
-        o << "Histogram(\"" << this->GetName() << "\"," << this->BinSize() << "," << m_limits[0] << "," << m_limits[1] << ")";
-        o << "  " << m_underf << " [";
+        o << "(\"" << this->GetName()
+          << "\"," << this->BinSize()
+          << "," << m_limits[0] << "," << m_limits[1] << ")";
+        o << "\t" << m_underf << " [";
         for(size_t i=0; i<this->BinSize(); ++i) {
             double val = (double)m_bins[i];
-            unsigned int lid = max > 0 ? (int)floor(val/max * 5) : 0;
+            unsigned int lid = max > 0 ? (int)floor(val/max * (strlen(lut)-1)) : 0;
             o << lut[lid];
         }
         o << "] " << m_overf << " ";
-        o << " visible -> mean:" << this->Mean() << " rms:" << this->Rms();
+        o << " card: " << this->Size()
+          << " mean:" << this->MeanAll() << " rms:" << this->RmsAll();
     }
 
-//    /// Convert to a Curve object
-//    operator Curve2D () const {
-//        Curve2D curve(this->GetName().c_str());
-//        curve.XAxis().name = "Histogram";
-//        curve.YAxis().name = this->m_value_name;
-//        for(size_t i=0; i<this->BinSize(); ++i)
-//            curve.AddPoint( Vector3d(get_pos(i) + get_spacing()/2, m_bins[i]) );
-//        curve.Update();
-//        return curve;
-//    }
+    /// Convert to a Curve object
+    operator Curve2D () const {
+        Curve2D curve(this->GetName().c_str());
+        curve.XAxis().name = "Histogram";
+        curve.YAxis().name = this->m_value_name;
+        for(size_t i=0; i<this->BinSize(); ++i)
+            curve.AddPoint( Vector3d(get_pos(i) + get_spacing()/2, m_bins[i]) );
+        curve.Update();
+        return curve;
+    }
 
     /// external inserter
     template < typename _OtherScalar >
@@ -119,14 +143,18 @@ public:
         return o;
     }
 
-//    /// Print to CSV file
-//    friend CsvDataFile &
-//    operator << (CsvDataFile &o, const Histogram &plot) {
-//        const char _c = o.Separator();
-//        plot.PrintSelf(o,_c);
-//        return o;
-//    }
+    /// Print to CSV file
+    friend CsvDataFile &
+    operator << (CsvDataFile &o, const Histogram &plot) {
+        const char _c = o.Separator();
+        plot.PrintSelf(o,_c);
+        return o;
+    }
 
+    Histogram & operator +=( const Histogram &other ) {
+        Histogram result = Histogram::merge(*this,other);
+        return (*this) = result;
+    }
 
     static Histogram merge(const Histogram &h1, const Histogram &h2) {
         // TODO: very bad ... works only if h have the same bins //
@@ -157,6 +185,7 @@ public:
                 & h.m_stat;
     }
 
+
 private:
 
     T get_spacing() const {
@@ -174,10 +203,11 @@ private:
     }
 
     std::string m_value_name;
-    std::vector<size_t> m_bins;
+    //    std::vector<size_t> m_bins;
+    std::vector<double> m_bins;
     T m_limits[2];
     size_t m_underf, m_overf;
-    StatisticUtils::IncrementalOrder2 m_stat;
+    StatUtils::IncrementalOrder2 m_stat;
 };
 
 

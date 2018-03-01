@@ -32,8 +32,12 @@ public:
 
 
     void Push(const T data) {
-        m_min = std::min(m_min,data);
-        m_max = std::max(m_max,data);
+        if(this->Size()) {
+            m_min = std::min(m_min,data);
+            m_max = std::max(m_max,data);
+        } else {
+            m_min = m_max = data;
+        }
         m_sum += data;
         m_stat << data;
     }
@@ -55,9 +59,14 @@ public:
     double Rms() const { return m_stat.rms(); }
 
     void operator += (const Accumulator &other) {
-        m_min = std::min(m_min, other.m_min);
-        m_max = std::max(m_max, other.m_max);
-        m_sum += other.m_sum;
+        if(this->Size()) {
+            m_min = std::min(m_min, other.m_min);
+            m_max = std::max(m_max, other.m_max);
+        } else {
+            m_min = other.m_min;
+            m_max = other.m_max;
+        }
+        m_sum  += other.m_sum;
         m_stat += other.m_stat; // see stat operator //
     }
 
@@ -81,9 +90,8 @@ public:
 
 protected:
     T m_min,m_max,m_sum;
-    StatisticUtils::IncrementalOrder2 m_stat;
+    StatUtils::IncrementalOrder2 m_stat;
 };
-
 
 #endif // ACCUMULATOR_H
 
