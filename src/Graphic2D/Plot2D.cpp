@@ -56,7 +56,7 @@ void Plot2D::PrintToCsv(std::string file_name, const char sep)
     std::ofstream o;
 
     std::vector<CurveType> m_curves = vector_cat(d[0].m_curves, d[1].m_curves);
-    if(m_curves.empty()) throw std::logic_error("No curves to plot");
+    if(m_curves.empty()) throw std::runtime_error("No curves to plot");
 
     bool split_files = false;
     foreach (Curve2D &curve, m_curves) {
