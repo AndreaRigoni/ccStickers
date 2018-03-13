@@ -63,6 +63,7 @@ public:
         GnuplotStyle2,
     };
     void PrintToGnuplotFile(std::string file_name = "", enum GnuplotStyle = GnuplotStyle2) const;
+
     //    friend CsvDataFile &
     //    operator << (CsvDataFile &csv, Plot2D &plot) {
     //        plot.PrintToCsv(csv, csv.Separator());
@@ -93,6 +94,7 @@ private:
     static Singleton<ColorRGBList> s_chart_colors;
 
     void print_plot_range(std::ofstream &o) const;
+    void print_plot_scale(std::ofstream &o) const;
     void print_plot_style1(const std::string &name, std::ofstream &o) const;
     void print_plot_style2(const std::string &name, std::ofstream &o) const;
 };

@@ -160,6 +160,19 @@ void Plot2D::print_plot_range(std::ofstream &o) const {
 }
 
 
+void Plot2D::print_plot_scale(std::ofstream &o) const {
+    std::string log_axes;
+    for (int set = 0; set<SET_SIZE; ++set) {
+        if(d[set].m_curves.empty()) continue;
+        std::string setstr = (set) ? to_string(set+1) : "";
+        if (XAxis(set).scale_type == AxisType::LogScale) log_axes += "x"+setstr;
+        if (YAxis(set).scale_type == AxisType::LogScale) log_axes += "y"+setstr;
+    }
+    if (log_axes.size() > 0) o << "set logscale " << log_axes << ";" << std::endl;
+}
+
+
+
 void Plot2D::print_plot_style1(const std::string &name, std::ofstream &o) const {
     // TERMINAL //
     o << "set terminal postscript eps enhanced color font 'Helvetica,20' \n";
@@ -192,6 +205,9 @@ void Plot2D::print_plot_style1(const std::string &name, std::ofstream &o) const 
 
     // RANGES //
     this->print_plot_range(o);
+
+    // SCALE TYPE //
+    this->print_plot_scale(o);
 
     // CURVES //
     count=0;
@@ -331,6 +347,9 @@ void Plot2D::print_plot_style2(const std::string &name, std::ofstream &o) const
 
     // RANGES //
     this->print_plot_range(o);
+
+    // SCALE TYPE //
+    this->print_plot_scale(o);
 
     // CURVES //
     count=0;

@@ -21,16 +21,21 @@ public:
 
 public:
 
-    struct Axis {
-        Axis() : ticks(1)
-        {
-            limits[0] = 0;
-            limits[1] = 0;
-        }
 
+    struct Axis {
         std::string name;
         double limits[2];
         double ticks;
+        enum ScaleEnum {
+            LinScale,
+            LogScale
+        } scale_type;
+
+        Axis() :
+            ticks(1),
+            scale_type(LinScale),
+            limits({0,0})
+        {}
 
         bool empty() const {
             return name == ""
@@ -45,6 +50,10 @@ public:
                     && this->limits[1] == other.limits[1]
                     && this->ticks == other.ticks;
         }
+
+        void SetScaleType(const enum ScaleEnum scale) {
+            this->scale_type = scale;
+        }
     };
 
     Curve2D() {}
@@ -57,7 +66,7 @@ public:
 
     template < typename _T >
     void AddPoint( const ScalarArray<_T,3> &pt ) {
-//        MDS_LOCK_SCOPE(*this);
+        //  MDS_LOCK_SCOPE(*this);
         m_data.push_back ( (Point)pt );
     }
 
