@@ -91,6 +91,7 @@ public:
     unique_ptr & operator = (unique_ptr other) {
         ptr = other.ptr;
         other.ptr = NULL;
+        return *this;
     }
 
     void _delete() { if(ptr) D::_delete(ptr); ptr=NULL; }
