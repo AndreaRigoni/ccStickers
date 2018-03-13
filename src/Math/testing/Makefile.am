@@ -2,7 +2,8 @@ include $(top_srcdir)/Common.am
 
 
 # if HAVE_CHECK
-TESTS = #\
+TESTS = \
+		StatMATest
         #numeric_cast_Test
 
 # UuidTest
