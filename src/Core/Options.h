@@ -122,6 +122,12 @@ public:
 
     void PrintSelf(std::ostream &o);
 
+    friend std::ostream &
+    operator << (std::ostream &o, /*const*/ Options &opt) {
+        opt.PrintSelf(o);
+        return o;
+    }
+
 private:
 
     bool isCharTag(const char *str) { return std::strlen(str)>2 && str[0] == '-' && std::isalpha(str[1]); }
