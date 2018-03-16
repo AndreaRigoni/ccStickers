@@ -33,9 +33,11 @@ public:
 
         Axis() :
             ticks(1),
-            scale_type(LinScale),
-            limits({0,0})
-        {}
+            scale_type(LinScale)
+        {
+            limits[0] = 0;
+            limits[1] = 0;
+        }
 
         bool empty() const {
             return name == ""
