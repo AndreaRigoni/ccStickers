@@ -34,7 +34,7 @@ public:
 
     virtual void parse( std::string str) {}
 
-    virtual std::string toString() { return ""; }
+    virtual std::string toString() const { return ""; }
 
     const std::string m_name;
     const char  m_ch;
@@ -56,7 +56,7 @@ public:
         ss >> *m_ptr;
     }
 
-    std::string toString() {
+    std::string toString() const {
         std::stringstream ss;
         ss << *m_ptr;
         return ss.str();
@@ -74,7 +74,7 @@ public:
         value_semantic(name,ch,desc), m_ptr(ptr) {}
 
     void parse(std::string str) { *m_ptr = str; }
-    std::string toString() { return *m_ptr; }
+    std::string toString() const { return *m_ptr; }
 };
 } // detail
 
@@ -120,19 +120,26 @@ public:
 
     void Parse(int argc, char *argv[]);
 
-    void PrintSelf(std::ostream &o);
+    void PrintSelf(std::ostream &o) const;
 
     friend std::ostream &
-    operator << (std::ostream &o, /*const*/ Options &opt) {
+    operator << (std::ostream &o, const Options &opt) {
         opt.PrintSelf(o);
         return o;
     }
 
 private:
 
-    bool isCharTag(const char *str) { return std::strlen(str)>2 && str[0] == '-' && std::isalpha(str[1]); }
+    static bool isCharTag(const char *str) {
+        return std::strlen(str)>2
+                && str[0] == '-'
+                && std::isalpha(str[1]); }
 
-    bool isNameTag(const char *str) { return std::strlen(str)>3 && strncmp(str,"--",2) == 0 && std::isalpha(str[2]); }
+    static bool isNameTag(const char *str) {
+        return std::strlen(str)>3
+                && std::strncmp(str,"--",2) == 0
+                && std::isalpha(str[2]);
+    }
 
     detail::value_semantic *findValueByName(const char *name) {
         foreach (detail::value_semantic *val, m_values) {

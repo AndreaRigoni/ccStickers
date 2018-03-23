@@ -13,19 +13,23 @@ void Options::Parse(int argc, char *argv[])
         detail::value_semantic *val = NULL;
         if( isNameTag(argv[i]) ) {
             val = findValueByName(argv[i]+2);
-            std::stringstream arg;
-            while( ++i < argc && !isCharTag(argv[i]) && !isNameTag(argv[i]) )
-                arg << argv[i] << " ";
+            std::string arg;
+            while( ++i < argc && !isCharTag(argv[i]) && !isNameTag(argv[i]) ) {
+                arg += argv[i];
+                arg += " ";
+            }
             --i;
-            if(val) val->parse(arg.str());
+            if(val) val->parse(arg.substr(0,arg.length()-1));
         }
         else if( isCharTag(argv[i])) {
             val = findValueByChar(argv[i]+1);
-            std::stringstream arg;
-            while( ++i < argc && !isCharTag(argv[i]) && !isNameTag(argv[i]) )
-                arg << argv[i] << " ";
+            std::string arg;
+            while( ++i < argc && !isCharTag(argv[i]) && !isNameTag(argv[i]) ) {
+                arg += argv[i];
+                arg += " ";
+            }
             --i;
-            if(val) val->parse(arg.str());
+            if(val) val->parse(arg.substr(0,arg.length()-1));
         }
 
         if(val && val->m_name == "help") {
@@ -36,10 +40,10 @@ void Options::Parse(int argc, char *argv[])
 }
 
 
-void Options::PrintSelf(std::ostream &o)
+void Options::PrintSelf(std::ostream &o) const
 {
     o << "\n" << m_usage << "\n\n";
-    foreach (detail::value_semantic *val, m_values) {
+    foreach (const detail::value_semantic *val, m_values) {
         if(val->m_ch)
             o << "-" << val->m_ch << " ";
         o << "--" << val->m_name
