@@ -6,7 +6,7 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
-
+#include <map>
 
 #include "Core/foreach.h"
 
@@ -26,19 +26,19 @@ class Buffer : public std::vector<T> {
 
 public:
     Buffer() : BaseClass() {}
-    Buffer(size_t size) : BaseClass(size) {}
+    explicit Buffer(size_t size) : BaseClass(size) {}
 
     virtual void spool() { /* BaseClass::clear(); */ }
 
     // write if \n or \r is inserted
     Buffer & operator << (const char c) {
-        if (c != '\n' || c != '\r') return *this << c;
+        if (c != '\n' && c != '\r') return *this << c;
         else this->spool();
         return *this;
     }
 
     // write if std::endl is inserted
-    void operator << ( std::ostream& (*var)(std::ostream&) ) {
+    void operator << ( std::ostream& (*)(std::ostream&) ) {
         this->spool();
     }
 
@@ -62,32 +62,31 @@ static inline std::ostream& operator << (std::ostream &o, const detail::Buffer<T
 }
 
 
-class folded_container {
-public:
-    folded_container(const char *filename) {
-        mkdir_p(filename);
-    }
-private:
-    static void mkdir_p(const char *filename);
-};
+namespace detail {
+void mkdir_p(const char *filename, bool wipe_last);
+}
 
 
 
-template < typename _FileFormat >
-class folded_ofstream : public std::basic_ofstream<_FileFormat>,
-                        private folded_container {
 
-    typedef folded_ofstream ThisClass;
-    typedef std::basic_ofstream<_FileFormat> BaseClass;
+
+
+class folded_fstream : public std::basic_fstream<char> {
+
+    typedef folded_fstream ThisClass;
+    typedef std::basic_fstream<char> BaseClass;
 
 public:
-    folded_ofstream(const char *filename, const char separator = ' ') :
-        _separator(separator) {
-            folded_container(filename);
-            BaseClass(filename, std::ios_base::out);
+
+    explicit folded_fstream(const char *filename, 
+                             std::ios_base::openmode __mode = BaseClass::trunc | BaseClass::in | BaseClass::out )
+        {
+            detail::mkdir_p(filename, true);
+            BaseClass::close();
+            this->open(filename, __mode);
         }
 
-    ~folded_ofstream() { if(this->is_open()) close(); }
+    ~folded_fstream() { if(this->is_open()) close(); }
     
     void close() {
         *this << std::flush;
@@ -99,49 +98,52 @@ public:
     //     return *this;
     // }
 
-private:
-    char _separator;
 
 };
 
 
 
+class TextBufferIO {
 
+    typedef folded_fstream __Buffer;
 
-class Subfolders {
+    typedef std::map< std::string, __Buffer* > __Map;
 
 public:
-    Subfolders(const char *name) {}
 
-    // Write file data once
-    template < typename T >
-    int write_once(const char *file_path, const T& t);
+    typedef __Buffer Buffer;
 
+    explicit TextBufferIO(std::string prefix = "") : _map(), _prefix(prefix) {}
+    
+    ~TextBufferIO() { this->close(); }
+
+    inline Buffer& operator () (const char *path) { return at(path); }
+
+    Buffer& at(const char *file_path) { 
+        std::string path = this->_path(file_path);
+        __Map::iterator it = _map.find(path);
+        if(it == _map.end()) {
+            _map[path] = new Buffer(path.c_str());
+            return *_map.at(path);
+        }
+        else return *it->second;
+    }
+
+    void close() {
+        for (auto &el: _map) {
+            el.second->close();
+            delete el.second;
+        }
+        _map.clear();     
+    }
 
 private:
-    static void mkdir_p(const char *path, bool wipe_last = 0);
+    __Map _map;
+    std::string _prefix;
+
+    inline std::string _path(const char *path) { return _prefix+std::string(path); }
 
 };
-
-
-template < typename T >
-int Subfolders::write_once (const char *file_path, const T& t)  {
-    try {
-        // create path
-        mkdir_p(file_path, 1);
-        // write file
-        std::ofstream myfileOUT(file_path, std::ofstream::out);
-        myfileOUT << t << "\n";  }
-    catch (std::exception &e) {
-        std::cerr << "ERROR writing output file\n" << e.what() << "\n";
-        return 1;
-    }
-    return 0;
-}
-
-
-
-
 
 
 
