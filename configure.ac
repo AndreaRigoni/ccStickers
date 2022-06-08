@@ -64,6 +64,8 @@ AC_CONFIG_FILES([
         src/Math/testing/Makefile
         src/Graphic2D/Makefile
         src/Graphic2D/testing/Makefile
+        src/IO/Makefile
+        src/IO/testing/Makefile
         recipes/Makefile
 	])
 AC_OUTPUT

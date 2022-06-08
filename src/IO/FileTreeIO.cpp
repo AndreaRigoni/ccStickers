@@ -1,4 +1,4 @@
-#include "BufferedIO.h"
+#include "FileTreeIO.h"
 
 
 #include <sstream>
@@ -65,11 +65,11 @@ namespace detail
         return 0;
     }
 
-void mkdir_p(const char *filename, bool wipe_last) {
-    std::string path = std::string(filename);
-    if (wipe_last) path = path.substr(0, path.find_last_of("/"));
-    detail::mkdir(path.c_str());
-}
+    void mkdir_p(const char *filename, bool wipe_last) {
+        std::string path = std::string(filename);
+        if (wipe_last) path = path.substr(0, path.find_last_of("/"));
+        detail::mkdir(path.c_str());
+    }
 
 } // detail
 

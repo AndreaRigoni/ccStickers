@@ -9,6 +9,13 @@
 #include <map>
 
 #include "Core/foreach.h"
+#include "Math/ScalarArray.h"
+
+
+#include <string>
+#include "H5Cpp.h"
+using namespace H5;
+
 
 //
 //
@@ -98,24 +105,54 @@ public:
     //     return *this;
     // }
 
-
 };
 
+// read to a ScalarArray //
+template < typename _Scalar, unsigned int _Dim >
+static inline const ScalarArray<_Scalar, _Dim>& operator >> ( folded_fstream &is, ScalarArray<_Scalar, _Dim> &vector)  {
+    _Scalar value;
+    std::string line;
+    std::getline(is, line);
+    std::istringstream iss(line);    
+    for(int dim = 0; iss >> value && dim<_Dim; ++dim)
+        vector(dim) = value;
+    return vector;
+}
+
+// read to a vector //
+template < typename T >
+static inline const std::vector<T>& operator >> (folded_fstream &is, std::vector<T> &vector) {
+    T value;
+    std::string line;
+    std::getline(is, line);
+    std::istringstream iss(line);
+    while(iss >> value) vector.push_back(value);
+    return vector;
+
+}
 
 
-class TextBufferIO {
+
+
+//   _____         _   ___ ___   //
+//  |_   _|____  _| |_|_ _/ _ \  //
+//    | |/ _ \ \/ / __|| | | | | //
+//    | |  __/>  <| |_ | | |_| | //
+//    |_|\___/_/\_\\__|___\___/  //
+//                               //
+
+class FileTreeIO {
 
     typedef folded_fstream __Buffer;
-
     typedef std::map< std::string, __Buffer* > __Map;
 
 public:
 
     typedef __Buffer Buffer;
 
-    explicit TextBufferIO(std::string prefix = "") : _map(), _prefix(prefix) {}
+    explicit FileTreeIO(std::string prefix = "") : _map(), _prefix(prefix) {}
     
-    ~TextBufferIO() { this->close(); }
+    ~FileTreeIO() { this->close(); }
 
     inline Buffer& operator () (const char *path) { return at(path); }
 
@@ -134,7 +171,7 @@ public:
             el.second->close();
             delete el.second;
         }
-        _map.clear();     
+        _map.clear();
     }
 
 private:
@@ -144,12 +181,6 @@ private:
     inline std::string _path(const char *path) { return _prefix+std::string(path); }
 
 };
-
-
-
-
-
-
 
 
 
